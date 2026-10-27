@@ -18,6 +18,7 @@ function BuilderPage() {
       type: selectedType,
       label: "New " + selectedType + " field",
       required: false,
+      options: [],
     };
     const newFields = fields.concat(newField);
     setFields(newFields);
@@ -38,6 +39,7 @@ function BuilderPage() {
           type: field.type,
           label: newValue,
           required: field.required,
+          options: field.options,
         };
         return changed;
       }
@@ -54,6 +56,25 @@ function BuilderPage() {
           type: field.type,
           label: field.label,
           required: newValue,
+          options: field.options,
+        };
+        return changed;
+      }
+      return field;
+    });
+    setFields(newFields);
+  }
+
+  function changeOptions(id, newValue) {
+    const newFields = fields.map(function (field) {
+      if (field.id === id) {
+        const optionsArray = newValue.split(",");
+        const changed = {
+          id: field.id,
+          type: field.type,
+          label: field.label,
+          required: field.required,
+          options: optionsArray,
         };
         return changed;
       }
@@ -100,6 +121,9 @@ function BuilderPage() {
           >
             <option value="text">Text Field</option>
             <option value="email">Email Field</option>
+            <option value="number">Number Field</option>
+            <option value="dropdown">Dropdown Field</option>
+            <option value="checkbox">Checkbox Field</option>
           </select>
 
           <button
@@ -156,6 +180,22 @@ function BuilderPage() {
                       Delete
                     </button>
                   </div>
+
+                  {field.type === "dropdown" && (
+                    <div className="ml-10">
+                      <p className="text-sm text-slate-500 mb-1">
+                        Options (comma separated)
+                      </p>
+                      <input
+                        type="text"
+                        value={field.options.join(", ")}
+                        onChange={function (e) {
+                          changeOptions(field.id, e.target.value);
+                        }}
+                        className="border border-slate-200 p-2 rounded-lg w-full text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      />
+                    </div>
+                  )}
 
                   <div className="flex items-center gap-4 ml-10 text-sm">
                     <span className="bg-violet-100 text-violet-700 px-2.5 py-1 rounded-md font-medium">
