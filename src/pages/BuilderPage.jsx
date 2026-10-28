@@ -1,4 +1,5 @@
 import { useState } from "react";
+
 import { ReactSortable } from "react-sortablejs";
 
 function BuilderPage() {
@@ -7,7 +8,6 @@ function BuilderPage() {
     if (savedData !== null) {
       return JSON.parse(savedData);
     }
-
     return [];
   });
 
@@ -20,9 +20,12 @@ function BuilderPage() {
       label: "New " + selectedType + " field",
       required: false,
       options: [],
-      regex: "",
-    };
 
+      regex: "",
+
+      conditionFieldId: "",
+      conditionValue: "",
+    };
     const newFields = fields.concat(newField);
     setFields(newFields);
   }
@@ -31,22 +34,22 @@ function BuilderPage() {
     const newFields = fields.filter(function (field) {
       return field.id !== id;
     });
-
     setFields(newFields);
   }
 
   function changeLabel(id, newValue) {
     const newFields = fields.map(function (field) {
       if (field.id === id) {
-        const changed = {
+        return {
           id: field.id,
           type: field.type,
           label: newValue,
           required: field.required,
           options: field.options,
           regex: field.regex,
+          conditionFieldId: field.conditionFieldId,
+          conditionValue: field.conditionValue,
         };
-        return changed;
       }
       return field;
     });
@@ -56,16 +59,16 @@ function BuilderPage() {
   function changeRequired(id, newValue) {
     const newFields = fields.map(function (field) {
       if (field.id === id) {
-        const changed = {
+        return {
           id: field.id,
           type: field.type,
           label: field.label,
           required: newValue,
           options: field.options,
           regex: field.regex,
+          conditionFieldId: field.conditionFieldId,
+          conditionValue: field.conditionValue,
         };
-
-        return changed;
       }
       return field;
     });
@@ -75,16 +78,16 @@ function BuilderPage() {
   function changeOptions(id, newValue) {
     const newFields = fields.map(function (field) {
       if (field.id === id) {
-        const optionsArray = newValue.split(",");
-        const changed = {
+        return {
           id: field.id,
           type: field.type,
           label: field.label,
           required: field.required,
-          options: optionsArray,
+          options: newValue.split(","),
           regex: field.regex,
+          conditionFieldId: field.conditionFieldId,
+          conditionValue: field.conditionValue,
         };
-        return changed;
       }
       return field;
     });
@@ -94,15 +97,54 @@ function BuilderPage() {
   function changeRegex(id, newValue) {
     const newFields = fields.map(function (field) {
       if (field.id === id) {
-        const changed = {
+        return {
           id: field.id,
           type: field.type,
           label: field.label,
           required: field.required,
           options: field.options,
           regex: newValue,
+          conditionFieldId: field.conditionFieldId,
+          conditionValue: field.conditionValue,
         };
-        return changed;
+      }
+      return field;
+    });
+    setFields(newFields);
+  }
+
+  function changeConditionFieldId(id, newValue) {
+    const newFields = fields.map(function (field) {
+      if (field.id === id) {
+        return {
+          id: field.id,
+          type: field.type,
+          label: field.label,
+          required: field.required,
+          options: field.options,
+          regex: field.regex,
+          conditionFieldId: newValue,
+          conditionValue: field.conditionValue,
+        };
+      }
+      return field;
+    });
+    setFields(newFields);
+  }
+
+  function changeConditionValue(id, newValue) {
+    const newFields = fields.map(function (field) {
+      if (field.id === id) {
+        return {
+          id: field.id,
+          type: field.type,
+          label: field.label,
+          required: field.required,
+          options: field.options,
+          regex: field.regex,
+          conditionFieldId: field.conditionFieldId,
+          conditionValue: newValue,
+        };
       }
       return field;
     });
@@ -120,14 +162,13 @@ function BuilderPage() {
         <div className="max-w-3xl mx-auto flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-white">Form Builder</h1>
-            <p className="text-violet-100 mt-1">Design your custom form</p>
             <p className="text-violet-200 text-sm mt-2">
               Total fields: {fields.length}
             </p>
           </div>
           <button
             onClick={saveForm}
-            className="bg-white text-violet-700 hover:bg-violet-100 px-6 py-2.5 rounded-lg font-semibold shadow-md"
+            className="bg-white text-violet-700 px-6 py-2.5 rounded-lg font-semibold shadow-md"
           >
             Save Form
           </button>
@@ -141,7 +182,7 @@ function BuilderPage() {
             onChange={function (e) {
               setSelectedType(e.target.value);
             }}
-            className="flex-1 border border-violet-200 p-2.5 rounded-lg bg-violet-50 text-slate-700 focus:outline-none focus:ring-2 focus:ring-violet-500"
+            className="flex-1 border border-violet-200 p-2.5 rounded-lg bg-violet-50 text-slate-700"
           >
             <option value="text">Text Field</option>
             <option value="email">Email Field</option>
@@ -149,10 +190,9 @@ function BuilderPage() {
             <option value="dropdown">Dropdown Field</option>
             <option value="checkbox">Checkbox Field</option>
           </select>
-
           <button
             onClick={addField}
-            className="bg-violet-600 hover:bg-violet-700 text-white px-6 py-2.5 rounded-lg font-medium shadow-md"
+            className="bg-violet-600 text-white px-6 py-2.5 rounded-lg font-medium shadow-md"
           >
             + Add New Field
           </button>
@@ -179,7 +219,7 @@ function BuilderPage() {
                   className="bg-white border border-violet-100 border-l-4 border-l-violet-500 p-4 mb-3 rounded-lg shadow-md flex flex-col gap-3"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="drag-handle cursor-grab text-violet-300 hover:text-violet-600 font-bold px-1 text-2xl select-none">
+                    <span className="drag-handle cursor-grab text-violet-300 font-bold px-1 text-2xl select-none">
                       ⋮⋮
                     </span>
                     <input
@@ -188,13 +228,13 @@ function BuilderPage() {
                       onChange={function (e) {
                         changeLabel(field.id, e.target.value);
                       }}
-                      className="border border-slate-200 bg-slate-50 p-2 rounded-lg flex-1 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      className="border border-slate-200 bg-slate-50 p-2 rounded-lg flex-1"
                     />
                     <button
                       onClick={function () {
                         deleteField(field.id);
                       }}
-                      className="bg-red-50 text-red-500 hover:bg-red-100 px-3 py-2 rounded-lg font-medium text-sm"
+                      className="bg-red-50 text-red-500 px-3 py-2 rounded-lg text-sm"
                     >
                       Delete
                     </button>
@@ -211,7 +251,7 @@ function BuilderPage() {
                         onChange={function (e) {
                           changeOptions(field.id, e.target.value);
                         }}
-                        className="border border-slate-200 p-2 rounded-lg w-full text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                        className="border border-slate-200 p-2 rounded-lg w-full text-sm"
                       />
                     </div>
                   )}
@@ -224,14 +264,53 @@ function BuilderPage() {
                       <input
                         type="text"
                         value={field.regex}
-                        placeholder="e.g. ^[0-9]+$ for numbers only"
                         onChange={function (e) {
                           changeRegex(field.id, e.target.value);
                         }}
-                        className="border border-slate-200 p-2 rounded-lg w-full text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                        placeholder="e.g. ^[0-9]+$"
+                        className="border border-slate-200 p-2 rounded-lg w-full text-sm"
                       />
                     </div>
                   )}
+
+                  <div className="ml-10 border-t border-slate-100 pt-3 mt-1">
+                    <p className="text-sm font-medium text-slate-700 mb-2">
+                      Conditional Logic
+                    </p>
+                    <div className="flex gap-2">
+                      <select
+                        value={field.conditionFieldId}
+                        onChange={function (e) {
+                          changeConditionFieldId(field.id, e.target.value);
+                        }}
+                        className="border border-slate-200 p-2 rounded-lg text-sm flex-1"
+                      >
+                        <option value="">Always show</option>
+                        {fields.map(function (f) {
+                          if (f.id !== field.id) {
+                            return (
+                              <option key={f.id} value={f.id}>
+                                Show if: {f.label}
+                              </option>
+                            );
+                          }
+                          return null;
+                        })}
+                      </select>
+
+                      {field.conditionFieldId !== "" && (
+                        <input
+                          type="text"
+                          value={field.conditionValue}
+                          onChange={function (e) {
+                            changeConditionValue(field.id, e.target.value);
+                          }}
+                          placeholder="equals value (e.g. Yes)"
+                          className="border border-slate-200 p-2 rounded-lg text-sm flex-1"
+                        />
+                      )}
+                    </div>
+                  </div>
 
                   <div className="flex items-center gap-4 ml-10 text-sm">
                     <span className="bg-violet-100 text-violet-700 px-2.5 py-1 rounded-md font-medium">

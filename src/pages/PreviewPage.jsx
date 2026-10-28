@@ -20,17 +20,34 @@ function PreviewPage() {
     setFormData(newData);
   }
 
+  function isFieldVisible(field) {
+    if (field.conditionFieldId === "") {
+      return true;
+    }
+
+    const dependentValue = formData[field.conditionFieldId];
+
+    if (dependentValue === field.conditionValue) {
+      return true;
+    }
+    return false;
+  }
+
   function handleSubmit(e) {
     e.preventDefault();
 
     for (let i = 0; i < fields.length; i++) {
       let field = fields[i];
+
+      if (isFieldVisible(field) === false) {
+        continue;
+      }
+
       let value = formData[field.id];
 
       if (field.regex !== "" && value) {
         let pattern = new RegExp(field.regex);
         let isValid = pattern.test(value);
-
         if (isValid === false) {
           alert("Invalid format for: " + field.label);
           return;
@@ -67,13 +84,17 @@ function PreviewPage() {
 
           {fields.length === 0 && (
             <p className="text-slate-500 text-center py-8">
-              No form saved yet. Go to Builder page and save a form first.
+              No form saved yet.
             </p>
           )}
 
           {fields.length > 0 && (
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
               {fields.map(function (field) {
+                if (isFieldVisible(field) === false) {
+                  return null;
+                }
+
                 return (
                   <div key={field.id} className="flex flex-col gap-1">
                     <label className="text-sm font-medium text-slate-700">
