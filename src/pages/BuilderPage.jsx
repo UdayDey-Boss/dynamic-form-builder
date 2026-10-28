@@ -19,10 +19,8 @@ function BuilderPage() {
       type: selectedType,
       label: "New " + selectedType + " field",
       required: false,
-      options: [],
-
+      options: "",
       regex: "",
-
       conditionFieldId: "",
       conditionValue: "",
     };
@@ -83,7 +81,7 @@ function BuilderPage() {
           type: field.type,
           label: field.label,
           required: field.required,
-          options: newValue.split(","),
+          options: newValue,
           regex: field.regex,
           conditionFieldId: field.conditionFieldId,
           conditionValue: field.conditionValue,
@@ -247,7 +245,7 @@ function BuilderPage() {
                       </p>
                       <input
                         type="text"
-                        value={field.options.join(", ")}
+                        value={field.options}
                         onChange={function (e) {
                           changeOptions(field.id, e.target.value);
                         }}

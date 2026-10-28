@@ -27,7 +27,14 @@ function PreviewPage() {
 
     const dependentValue = formData[field.conditionFieldId];
 
-    if (dependentValue === field.conditionValue) {
+    let valueString = "";
+    if (dependentValue !== undefined) {
+      valueString = String(dependentValue).trim();
+    }
+
+    const conditionString = String(field.conditionValue).trim();
+
+    if (valueString === conditionString) {
       return true;
     }
     return false;
@@ -150,12 +157,16 @@ function PreviewPage() {
                         className="border border-slate-300 p-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
                       >
                         <option value="">Select an option</option>
-                        {field.options.map(function (option) {
-                          return (
-                            <option key={option} value={option}>
-                              {option}
-                            </option>
-                          );
+                        {field.options.split(",").map(function (option) {
+                          const cleanOption = option.trim();
+                          if (cleanOption !== "") {
+                            return (
+                              <option key={cleanOption} value={cleanOption}>
+                                {cleanOption}
+                              </option>
+                            );
+                          }
+                          return null;
                         })}
                       </select>
                     )}
