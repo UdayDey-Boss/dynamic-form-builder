@@ -16,14 +16,27 @@ function PreviewPage() {
     for (let key in formData) {
       newData[key] = formData[key];
     }
-
     newData[fieldId] = value;
-
     setFormData(newData);
   }
 
   function handleSubmit(e) {
     e.preventDefault();
+
+    for (let i = 0; i < fields.length; i++) {
+      let field = fields[i];
+      let value = formData[field.id];
+
+      if (field.regex !== "" && value) {
+        let pattern = new RegExp(field.regex);
+        let isValid = pattern.test(value);
+
+        if (isValid === false) {
+          alert("Invalid format for: " + field.label);
+          return;
+        }
+      }
+    }
 
     const existingSubmissions = localStorage.getItem("submitted_data");
     let submissionsArray = [];
@@ -41,7 +54,6 @@ function PreviewPage() {
     localStorage.setItem("submitted_data", JSON.stringify(submissionsArray));
 
     alert("Form submitted successfully!");
-
     setFormData({});
   }
 

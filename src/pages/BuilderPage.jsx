@@ -7,6 +7,7 @@ function BuilderPage() {
     if (savedData !== null) {
       return JSON.parse(savedData);
     }
+
     return [];
   });
 
@@ -19,7 +20,9 @@ function BuilderPage() {
       label: "New " + selectedType + " field",
       required: false,
       options: [],
+      regex: "",
     };
+
     const newFields = fields.concat(newField);
     setFields(newFields);
   }
@@ -28,6 +31,7 @@ function BuilderPage() {
     const newFields = fields.filter(function (field) {
       return field.id !== id;
     });
+
     setFields(newFields);
   }
 
@@ -40,6 +44,7 @@ function BuilderPage() {
           label: newValue,
           required: field.required,
           options: field.options,
+          regex: field.regex,
         };
         return changed;
       }
@@ -57,7 +62,9 @@ function BuilderPage() {
           label: field.label,
           required: newValue,
           options: field.options,
+          regex: field.regex,
         };
+
         return changed;
       }
       return field;
@@ -75,6 +82,25 @@ function BuilderPage() {
           label: field.label,
           required: field.required,
           options: optionsArray,
+          regex: field.regex,
+        };
+        return changed;
+      }
+      return field;
+    });
+    setFields(newFields);
+  }
+
+  function changeRegex(id, newValue) {
+    const newFields = fields.map(function (field) {
+      if (field.id === id) {
+        const changed = {
+          id: field.id,
+          type: field.type,
+          label: field.label,
+          required: field.required,
+          options: field.options,
+          regex: newValue,
         };
         return changed;
       }
@@ -94,9 +120,7 @@ function BuilderPage() {
         <div className="max-w-3xl mx-auto flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-white">Form Builder</h1>
-            <p className="text-violet-100 mt-1">
-              Design your custom form with drag & drop
-            </p>
+            <p className="text-violet-100 mt-1">Design your custom form</p>
             <p className="text-violet-200 text-sm mt-2">
               Total fields: {fields.length}
             </p>
@@ -140,9 +164,6 @@ function BuilderPage() {
               <p className="text-violet-400 text-lg font-medium">
                 No fields yet.
               </p>
-              <p className="text-slate-400 text-sm">
-                Add one above to get started.
-              </p>
             </div>
           )}
 
@@ -155,13 +176,12 @@ function BuilderPage() {
               return (
                 <div
                   key={field.id}
-                  className="bg-white border border-violet-100 border-l-4 border-l-violet-500 p-4 mb-3 rounded-lg shadow-md hover:shadow-lg flex flex-col gap-3"
+                  className="bg-white border border-violet-100 border-l-4 border-l-violet-500 p-4 mb-3 rounded-lg shadow-md flex flex-col gap-3"
                 >
                   <div className="flex items-center gap-3">
                     <span className="drag-handle cursor-grab text-violet-300 hover:text-violet-600 font-bold px-1 text-2xl select-none">
                       ⋮⋮
                     </span>
-
                     <input
                       type="text"
                       value={field.label}
@@ -170,12 +190,11 @@ function BuilderPage() {
                       }}
                       className="border border-slate-200 bg-slate-50 p-2 rounded-lg flex-1 text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-violet-500"
                     />
-
                     <button
                       onClick={function () {
                         deleteField(field.id);
                       }}
-                      className="bg-red-50 text-red-500 hover:bg-red-100 hover:text-red-700 px-3 py-2 rounded-lg font-medium text-sm"
+                      className="bg-red-50 text-red-500 hover:bg-red-100 px-3 py-2 rounded-lg font-medium text-sm"
                     >
                       Delete
                     </button>
@@ -197,11 +216,27 @@ function BuilderPage() {
                     </div>
                   )}
 
+                  {(field.type === "text" || field.type === "number") && (
+                    <div className="ml-10">
+                      <p className="text-sm text-slate-500 mb-1">
+                        Regex Validation (optional)
+                      </p>
+                      <input
+                        type="text"
+                        value={field.regex}
+                        placeholder="e.g. ^[0-9]+$ for numbers only"
+                        onChange={function (e) {
+                          changeRegex(field.id, e.target.value);
+                        }}
+                        className="border border-slate-200 p-2 rounded-lg w-full text-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
+                      />
+                    </div>
+                  )}
+
                   <div className="flex items-center gap-4 ml-10 text-sm">
                     <span className="bg-violet-100 text-violet-700 px-2.5 py-1 rounded-md font-medium">
                       Type: {field.type}
                     </span>
-
                     <label className="flex items-center gap-2 cursor-pointer text-slate-600">
                       <input
                         type="checkbox"
