@@ -43,6 +43,7 @@ function BuilderPage() {
           id: field.id,
           type: field.type,
           label: newValue,
+
           required: field.required,
           options: field.options,
           regex: field.regex,
