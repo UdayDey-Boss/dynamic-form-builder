@@ -23,6 +23,7 @@ function BuilderPage() {
       regex: "",
       conditionFieldId: "",
       conditionValue: "",
+      step: 1,
     };
     const newFields = fields.concat(newField);
     setFields(newFields);
@@ -48,6 +49,7 @@ function BuilderPage() {
           regex: field.regex,
           conditionFieldId: field.conditionFieldId,
           conditionValue: field.conditionValue,
+          step: field.step,
         };
       }
       return field;
@@ -67,6 +69,7 @@ function BuilderPage() {
           regex: field.regex,
           conditionFieldId: field.conditionFieldId,
           conditionValue: field.conditionValue,
+          step: field.step,
         };
       }
       return field;
@@ -86,6 +89,7 @@ function BuilderPage() {
           regex: field.regex,
           conditionFieldId: field.conditionFieldId,
           conditionValue: field.conditionValue,
+          step: field.step,
         };
       }
       return field;
@@ -105,6 +109,7 @@ function BuilderPage() {
           regex: newValue,
           conditionFieldId: field.conditionFieldId,
           conditionValue: field.conditionValue,
+          step: field.step,
         };
       }
       return field;
@@ -124,6 +129,7 @@ function BuilderPage() {
           regex: field.regex,
           conditionFieldId: newValue,
           conditionValue: field.conditionValue,
+          step: field.step,
         };
       }
       return field;
@@ -143,6 +149,27 @@ function BuilderPage() {
           regex: field.regex,
           conditionFieldId: field.conditionFieldId,
           conditionValue: newValue,
+          step: field.step,
+        };
+      }
+      return field;
+    });
+    setFields(newFields);
+  }
+
+  function changeStep(id, newValue) {
+    const newFields = fields.map(function (field) {
+      if (field.id === id) {
+        return {
+          id: field.id,
+          type: field.type,
+          label: field.label,
+          required: field.required,
+          options: field.options,
+          regex: field.regex,
+          conditionFieldId: field.conditionFieldId,
+          conditionValue: field.conditionValue,
+          step: Number(newValue),
         };
       }
       return field;
@@ -155,21 +182,24 @@ function BuilderPage() {
     alert("Form saved successfully!");
   }
 
+  const inputClass =
+    "border border-slate-300 p-2 rounded-lg w-full text-sm focus:outline-none focus:ring-2 focus:ring-violet-500";
+
   return (
     <div className="min-h-screen bg-violet-50">
-      <div className="bg-gradient-to-r from-violet-600 to-indigo-600 py-10 px-4">
+      <div className="bg-gradient-to-r from-violet-600 to-fuchsia-600 py-10 px-4">
         <div className="max-w-3xl mx-auto flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-white">Form Builder</h1>
-            <p className="text-violet-200 text-sm mt-2">
+            <h1 className="text-3xl font-bold text-white">📝 Form Builder</h1>
+            <p className="inline-block bg-white/20 text-white text-sm mt-2 px-3 py-1 rounded-full">
               Total fields: {fields.length}
             </p>
           </div>
           <button
             onClick={saveForm}
-            className="bg-white text-violet-700 px-6 py-2.5 rounded-lg font-semibold shadow-md"
+            className="bg-white text-violet-700 px-6 py-2.5 rounded-lg font-semibold shadow-md hover:bg-violet-100 transition"
           >
-            Save Form
+            💾 Save Form
           </button>
         </div>
       </div>
@@ -191,7 +221,7 @@ function BuilderPage() {
           </select>
           <button
             onClick={addField}
-            className="bg-violet-600 text-white px-6 py-2.5 rounded-lg font-medium shadow-md"
+            className="bg-violet-600 hover:bg-violet-700 text-white px-6 py-2.5 rounded-lg font-medium shadow-md transition"
           >
             + Add New Field
           </button>
@@ -201,7 +231,7 @@ function BuilderPage() {
           {fields.length === 0 && (
             <div className="text-center py-12 bg-white rounded-xl border-2 border-dashed border-violet-200">
               <p className="text-violet-400 text-lg font-medium">
-                No fields yet.
+                📋 No fields yet. Add your first field above.
               </p>
             </div>
           )}
@@ -212,10 +242,33 @@ function BuilderPage() {
             handle=".drag-handle"
           >
             {fields.map(function (field) {
+              let borderColor = "border-l-violet-500";
+              let badgeColor = "bg-violet-100 text-violet-700";
+
+              if (field.type === "number") {
+                borderColor = "border-l-amber-500";
+                badgeColor = "bg-amber-100 text-amber-700";
+              }
+              if (field.type === "email") {
+                borderColor = "border-l-sky-500";
+                badgeColor = "bg-sky-100 text-sky-700";
+              }
+              if (field.type === "dropdown") {
+                borderColor = "border-l-emerald-500";
+                badgeColor = "bg-emerald-100 text-emerald-700";
+              }
+              if (field.type === "checkbox") {
+                borderColor = "border-l-rose-500";
+                badgeColor = "bg-rose-100 text-rose-700";
+              }
+
               return (
                 <div
                   key={field.id}
-                  className="bg-white border border-violet-100 border-l-4 border-l-violet-500 p-4 mb-3 rounded-lg shadow-md flex flex-col gap-3"
+                  className={
+                    "bg-white border border-violet-100 border-l-4 p-4 mb-3 rounded-lg shadow-md hover:shadow-lg transition flex flex-col gap-3 " +
+                    borderColor
+                  }
                 >
                   <div className="flex items-center gap-3">
                     <span className="drag-handle cursor-grab text-violet-300 font-bold px-1 text-2xl select-none">
@@ -227,15 +280,15 @@ function BuilderPage() {
                       onChange={function (e) {
                         changeLabel(field.id, e.target.value);
                       }}
-                      className="border border-slate-200 bg-slate-50 p-2 rounded-lg flex-1"
+                      className={inputClass}
                     />
                     <button
                       onClick={function () {
                         deleteField(field.id);
                       }}
-                      className="bg-red-50 text-red-500 px-3 py-2 rounded-lg text-sm"
+                      className="bg-red-50 hover:bg-red-100 text-red-500 px-3 py-2 rounded-lg text-sm"
                     >
-                      Delete
+                      🗑 Delete
                     </button>
                   </div>
 
@@ -250,7 +303,7 @@ function BuilderPage() {
                         onChange={function (e) {
                           changeOptions(field.id, e.target.value);
                         }}
-                        className="border border-slate-200 p-2 rounded-lg w-full text-sm"
+                        className={inputClass}
                       />
                     </div>
                   )}
@@ -267,13 +320,13 @@ function BuilderPage() {
                           changeRegex(field.id, e.target.value);
                         }}
                         placeholder="e.g. ^[0-9]+$"
-                        className="border border-slate-200 p-2 rounded-lg w-full text-sm"
+                        className={inputClass}
                       />
                     </div>
                   )}
 
-                  <div className="ml-10 border-t border-slate-100 pt-3 mt-1">
-                    <p className="text-sm font-medium text-slate-700 mb-2">
+                  <div className="ml-10 bg-violet-50 rounded-lg p-3">
+                    <p className="text-sm font-medium text-violet-800 mb-2">
                       Conditional Logic
                     </p>
                     <div className="flex gap-2">
@@ -282,7 +335,7 @@ function BuilderPage() {
                         onChange={function (e) {
                           changeConditionFieldId(field.id, e.target.value);
                         }}
-                        className="border border-slate-200 p-2 rounded-lg text-sm flex-1"
+                        className="border border-slate-300 bg-white p-2 rounded-lg text-sm flex-1"
                       >
                         <option value="">Always show</option>
                         {fields.map(function (f) {
@@ -296,7 +349,6 @@ function BuilderPage() {
                           return null;
                         })}
                       </select>
-
                       {field.conditionFieldId !== "" && (
                         <input
                           type="text"
@@ -304,17 +356,34 @@ function BuilderPage() {
                           onChange={function (e) {
                             changeConditionValue(field.id, e.target.value);
                           }}
-                          placeholder="equals value (e.g. Yes)"
-                          className="border border-slate-200 p-2 rounded-lg text-sm flex-1"
+                          placeholder="equals value"
+                          className="border border-slate-300 p-2 rounded-lg text-sm flex-1"
                         />
                       )}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 ml-10 text-sm">
-                    <span className="bg-violet-100 text-violet-700 px-2.5 py-1 rounded-md font-medium">
+                  <div className="flex items-center gap-4 ml-10 text-sm bg-slate-50 p-2 rounded-lg">
+                    <span
+                      className={
+                        "px-2.5 py-1 rounded-md font-medium " + badgeColor
+                      }
+                    >
                       Type: {field.type}
                     </span>
+
+                    <select
+                      value={field.step}
+                      onChange={function (e) {
+                        changeStep(field.id, e.target.value);
+                      }}
+                      className="border border-slate-300 p-1 rounded-md text-sm bg-white"
+                    >
+                      <option value="1">Step 1</option>
+                      <option value="2">Step 2</option>
+                      <option value="3">Step 3</option>
+                    </select>
+
                     <label className="flex items-center gap-2 cursor-pointer text-slate-600">
                       <input
                         type="checkbox"
