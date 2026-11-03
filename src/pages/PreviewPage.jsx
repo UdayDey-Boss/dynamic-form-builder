@@ -131,7 +131,7 @@ function PreviewPage() {
                         onChange={function (e) {
                           handleInputChange(field.id, e.target.value);
                         }}
-                        className="border border-slate-300 p-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500"
+                        className="border border-slate-300 p-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-500 "
                       />
                     )}
 
