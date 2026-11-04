@@ -1,6 +1,7 @@
 import { useState } from "react";
-
 import { ReactSortable } from "react-sortablejs";
+import FieldCard from "../components/FieldCard";
+import Button from "../components/Button";
 
 function BuilderPage() {
   const [fields, setFields] = useState(function () {
@@ -23,6 +24,7 @@ function BuilderPage() {
       regex: "",
       conditionFieldId: "",
       conditionValue: "",
+      step: 1,
     };
     const newFields = fields.concat(newField);
     setFields(newFields);
@@ -42,12 +44,12 @@ function BuilderPage() {
           id: field.id,
           type: field.type,
           label: newValue,
-
           required: field.required,
           options: field.options,
           regex: field.regex,
           conditionFieldId: field.conditionFieldId,
           conditionValue: field.conditionValue,
+          step: field.step,
         };
       }
       return field;
@@ -67,6 +69,7 @@ function BuilderPage() {
           regex: field.regex,
           conditionFieldId: field.conditionFieldId,
           conditionValue: field.conditionValue,
+          step: field.step,
         };
       }
       return field;
@@ -86,6 +89,7 @@ function BuilderPage() {
           regex: field.regex,
           conditionFieldId: field.conditionFieldId,
           conditionValue: field.conditionValue,
+          step: field.step,
         };
       }
       return field;
@@ -105,6 +109,7 @@ function BuilderPage() {
           regex: newValue,
           conditionFieldId: field.conditionFieldId,
           conditionValue: field.conditionValue,
+          step: field.step,
         };
       }
       return field;
@@ -124,6 +129,7 @@ function BuilderPage() {
           regex: field.regex,
           conditionFieldId: newValue,
           conditionValue: field.conditionValue,
+          step: field.step,
         };
       }
       return field;
@@ -143,6 +149,27 @@ function BuilderPage() {
           regex: field.regex,
           conditionFieldId: field.conditionFieldId,
           conditionValue: newValue,
+          step: field.step,
+        };
+      }
+      return field;
+    });
+    setFields(newFields);
+  }
+
+  function changeStep(id, newValue) {
+    const newFields = fields.map(function (field) {
+      if (field.id === id) {
+        return {
+          id: field.id,
+          type: field.type,
+          label: field.label,
+          required: field.required,
+          options: field.options,
+          regex: field.regex,
+          conditionFieldId: field.conditionFieldId,
+          conditionValue: field.conditionValue,
+          step: Number(newValue),
         };
       }
       return field;
@@ -157,20 +184,17 @@ function BuilderPage() {
 
   return (
     <div className="min-h-screen bg-violet-50">
-      <div className="bg-gradient-to-r from-violet-600 to-indigo-600 py-10 px-4">
+      <div className="bg-gradient-to-r from-violet-600 to-fuchsia-600 py-10 px-4">
         <div className="max-w-3xl mx-auto flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-white">Form Builder</h1>
-            <p className="text-violet-200 text-sm mt-2">
+            <h1 className="text-3xl font-bold text-white">📝 Form Builder</h1>
+            <p className="inline-block bg-white/20 text-white text-sm mt-2 px-3 py-1 rounded-full">
               Total fields: {fields.length}
             </p>
           </div>
-          <button
-            onClick={saveForm}
-            className="bg-white text-violet-700 px-6 py-2.5 rounded-lg font-semibold shadow-md"
-          >
-            Save Form
-          </button>
+          <Button color="white" onClick={saveForm}>
+            💾 Save Form
+          </Button>
         </div>
       </div>
 
@@ -189,19 +213,14 @@ function BuilderPage() {
             <option value="dropdown">Dropdown Field</option>
             <option value="checkbox">Checkbox Field</option>
           </select>
-          <button
-            onClick={addField}
-            className="bg-violet-600 text-white px-6 py-2.5 rounded-lg font-medium shadow-md"
-          >
-            + Add New Field
-          </button>
+          <Button onClick={addField}>+ Add New Field</Button>
         </div>
 
         <div>
           {fields.length === 0 && (
             <div className="text-center py-12 bg-white rounded-xl border-2 border-dashed border-violet-200">
               <p className="text-violet-400 text-lg font-medium">
-                No fields yet.
+                📋 No fields yet. Add your first field above.
               </p>
             </div>
           )}
@@ -213,121 +232,19 @@ function BuilderPage() {
           >
             {fields.map(function (field) {
               return (
-                <div
+                <FieldCard
                   key={field.id}
-                  className="bg-white border border-violet-100 border-l-4 border-l-violet-500 p-4 mb-3 rounded-lg shadow-md flex flex-col gap-3"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="drag-handle cursor-grab text-violet-300 font-bold px-1 text-2xl select-none">
-                      ⋮⋮
-                    </span>
-                    <input
-                      type="text"
-                      value={field.label}
-                      onChange={function (e) {
-                        changeLabel(field.id, e.target.value);
-                      }}
-                      className="border border-slate-200 bg-slate-50 p-2 rounded-lg flex-1"
-                    />
-                    <button
-                      onClick={function () {
-                        deleteField(field.id);
-                      }}
-                      className="bg-red-50 text-red-500 px-3 py-2 rounded-lg text-sm"
-                    >
-                      Delete
-                    </button>
-                  </div>
-
-                  {field.type === "dropdown" && (
-                    <div className="ml-10">
-                      <p className="text-sm text-slate-500 mb-1">
-                        Options (comma separated)
-                      </p>
-                      <input
-                        type="text"
-                        value={field.options}
-                        onChange={function (e) {
-                          changeOptions(field.id, e.target.value);
-                        }}
-                        className="border border-slate-200 p-2 rounded-lg w-full text-sm"
-                      />
-                    </div>
-                  )}
-
-                  {(field.type === "text" || field.type === "number") && (
-                    <div className="ml-10">
-                      <p className="text-sm text-slate-500 mb-1">
-                        Regex Validation (optional)
-                      </p>
-                      <input
-                        type="text"
-                        value={field.regex}
-                        onChange={function (e) {
-                          changeRegex(field.id, e.target.value);
-                        }}
-                        placeholder="e.g. ^[0-9]+$"
-                        className="border border-slate-200 p-2 rounded-lg w-full text-sm"
-                      />
-                    </div>
-                  )}
-
-                  <div className="ml-10 border-t border-slate-100 pt-3 mt-1">
-                    <p className="text-sm font-medium text-slate-700 mb-2">
-                      Conditional Logic
-                    </p>
-                    <div className="flex gap-2">
-                      <select
-                        value={field.conditionFieldId}
-                        onChange={function (e) {
-                          changeConditionFieldId(field.id, e.target.value);
-                        }}
-                        className="border border-slate-200 p-2 rounded-lg text-sm flex-1"
-                      >
-                        <option value="">Always show</option>
-                        {fields.map(function (f) {
-                          if (f.id !== field.id) {
-                            return (
-                              <option key={f.id} value={f.id}>
-                                Show if: {f.label}
-                              </option>
-                            );
-                          }
-                          return null;
-                        })}
-                      </select>
-
-                      {field.conditionFieldId !== "" && (
-                        <input
-                          type="text"
-                          value={field.conditionValue}
-                          onChange={function (e) {
-                            changeConditionValue(field.id, e.target.value);
-                          }}
-                          placeholder="equals value (e.g. Yes)"
-                          className="border border-slate-200 p-2 rounded-lg text-sm flex-1"
-                        />
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4 ml-10 text-sm">
-                    <span className="bg-violet-100 text-violet-700 px-2.5 py-1 rounded-md font-medium">
-                      Type: {field.type}
-                    </span>
-                    <label className="flex items-center gap-2 cursor-pointer text-slate-600">
-                      <input
-                        type="checkbox"
-                        checked={field.required}
-                        onChange={function (e) {
-                          changeRequired(field.id, e.target.checked);
-                        }}
-                        className="w-4 h-4 accent-violet-600"
-                      />
-                      Required field
-                    </label>
-                  </div>
-                </div>
+                  field={field}
+                  fields={fields}
+                  onDelete={deleteField}
+                  onChangeLabel={changeLabel}
+                  onChangeRequired={changeRequired}
+                  onChangeOptions={changeOptions}
+                  onChangeRegex={changeRegex}
+                  onChangeConditionFieldId={changeConditionFieldId}
+                  onChangeConditionValue={changeConditionValue}
+                  onChangeStep={changeStep}
+                />
               );
             })}
           </ReactSortable>
